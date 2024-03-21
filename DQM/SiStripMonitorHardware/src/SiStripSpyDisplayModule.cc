@@ -302,25 +302,68 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
     stringstream sss;  //!< detID folder filename
     sss << "detID_" << *d;
     TFileDirectory detID_dir = evdir.mkdir(sss.str());
-
+    
     // Loop over the channels found with the detID and add directories.
     for (uint32_t ch = 0; ch < conns.size(); ch++) {
       if (conns[ch] && conns[ch]->isConnected()) {
         // Name of channel histogram directory
         stringstream ssss;
         ssss << sss.str() << "_APVpair_" << ch;
-        TFileDirectory chan_dir = detID_dir.mkdir(ssss.str());
-
+        //TFileDirectory chan_dir = detID_dir.mkdir(ssss.str());
+	cout<<" dir "<<ssss.str()<<endl;
         // Get the fed key from the detID and the channel
         uint32_t fedkey = SiStripFedKey::fedIndex(conns[ch]->fedId(), conns[ch]->fedCh());
+	string newDir="";
+	newDir+=Form("FecCrate%d",conns[ch]->fecCrate());
+	newDir+="/";
+	newDir+=Form("FecSlot%d",conns[ch]->fecCrate());
+	newDir+="/";
+	newDir+=Form("FecRing%d",conns[ch]->fecRing());
+	newDir+="/";
+	newDir+=Form("CcuAddr%d",conns[ch]->ccuAddr());
+	newDir+="/";
+	newDir+=Form("CcuChan%d",conns[ch]->ccuChan());
+	newDir+="/";
+	cout<<" new Dir "<<newDir<<endl;
 
+	string newName="";
+        newDir+=Form("FecCrate%d",conns[ch]->fecCrate());
+        newDir+="_";
+        newDir+=Form("FecSlot%d",conns[ch]->fecCrate());
+        newDir+="_";
+        newDir+=Form("FecRing%d",conns[ch]->fecRing());
+        newDir+="_";
+        newDir+=Form("CcuAddr%d",conns[ch]->ccuAddr());
+        newDir+="_";
+        newDir+=Form("CcuChan%d",conns[ch]->ccuChan());
+        newDir+="_";
+
+	/** Returns FEC crate number. */
+	//const uint16_t& fecCrate() const;
+
+	/** Returns slot number of FEC. */
+	//const uint16_t& fecSlot() const;
+	
+	/** Returns FEC ring number. */
+	//const uint16_t& fecRing() const;
+	
+	/** Returns CCU address. */
+	//const uint16_t& ccuAddr() const;
+	
+	/** Returns CCU channel. */
+	//const uint16_t& ccuChan() const;
+
+	//TFileDirectory chan_dir = detID_dir.mkdir(newDir+Form("_APVpair_%d",ch));         
+	TFileDirectory chan_dir = detID_dir.mkdir(newDir);
+	
+	cout<<"Fed ID "<<conns[ch]->fedId()<<" channel "<<conns[ch]->fedCh()<<endl;
         // (Spy) Scope Mode (SM)
         //=======================
         // Get the fed key from the FED ID and the FED channel (from conns)
         // This is because scope mode always stores in the collection by FED ID
         if (!((inputScopeModeRawDigiLabel_.label().empty()) && (inputScopeModeRawDigiLabel_.instance().empty()))) {
           // Use the SiStripFedKey object to return the FED key
-          //cout << "detID=" << *d << ", FED key looking for is " << fedkey << endl;
+          cout << "detID=" << *d << ", FED key looking for is " << fedkey << endl;
           //cout << "Attempting to find scope mode raw digis" << endl;
           //
           edm::Handle<edm::DetSetVector<SiStripRawDigi> > sm_rawdigis;
